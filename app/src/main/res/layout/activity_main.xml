@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Owner Panel - Tambah Menu"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Form Login / Auth Token -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Email Owner"
+            android:inputType="textEmailAddress"
+            android:text="owner@example.com" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:text="password" />
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1. Login dan Dapatkan Token" />
+
+        <TextView
+            android:id="@+id/tvStatusToken"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status: Belum Login"
+            android:textColor="#FF0000"
+            android:layout_marginBottom="24dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="20dp"
+            android:background="#CCCCCC" />
+
+        <!-- Form Tambah Menu -->
+        <EditText
+            android:id="@+id/etNamaMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nama Menu (misal: Es Kopi Susu)" />
+
+        <EditText
+            android:id="@+id/etHarga"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Harga (misal: 18000)"
+            android:inputType="numberDecimal" />
+
+        <EditText
+            android:id="@+id/etKategori"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kategori (misal: Kopi)" />
+
+        <Button
+            android:id="@+id/btnTambahMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Kirim Menu Ke Web (API)"
+            android:enabled="false" />
+
+    </LinearLayout>
+</ScrollView>
