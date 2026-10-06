@@ -16,9 +16,9 @@ data class MenuUiState(
     val error: String? = null,
     val selectedCategory: String? = null   // null = semua
 ) {
-    val categories: List<String> get() = menus.map { it.category }.distinct().sorted()
+    val categories: List<String> get() = menus.map { it.kategori }.distinct().sorted()
     val filteredMenus: List<Menu>
-        get() = if (selectedCategory == null) menus else menus.filter { it.category == selectedCategory }
+        get() = if (selectedCategory == null) menus else menus.filter { it.kategori == selectedCategory }
 }
 
 class MenuViewModel : ViewModel() {

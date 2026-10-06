@@ -7,11 +7,8 @@ data class MenuResponse(
 )
 
 data class Menu(
-    val id: Int,
-    val name: String,
-    val category: String,
-    val description: String?,
-    val price: Int,
-    @SerializedName("image_url") val imageUrl: String?,
-    @SerializedName("is_available") val isAvailable: Boolean
+    @SerializedName("id_menu") val idMenu: Int,
+    @SerializedName("nama_menu") val namaMenu: String,
+    val kategori: String,
+    @SerializedName("is_aktif") val isAktif: Boolean
 )

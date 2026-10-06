@@ -1,0 +1,10 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_margin="6dp" android:clickable="true" android:focusable="true" app:cardBackgroundColor="@color/card_bg" app:cardCornerRadius="16dp" app:cardElevation="0dp" app:strokeColor="@color/card_stroke" app:strokeWidth="1dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="8dp">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="110dp">
+            <TextView android:id="@+id/tvInitial" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/bg_menu_placeholder" android:gravity="center" android:textColor="@color/green_text" android:textSize="36sp" android:textStyle="bold"/>
+            <TextView android:id="@+id/tvNonaktif" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="top|end" android:layout_margin="6dp" android:background="@drawable/bg_badge_nonaktif" android:paddingHorizontal="8dp" android:paddingVertical="2dp" android:text="Nonaktif" android:textColor="@android:color/white" android:textSize="11sp" android:visibility="gone"/>
+        </FrameLayout>
+        <TextView android:id="@+id/tvNama" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:ellipsize="end" android:maxLines="2" android:minLines="2" android:textColor="@color/green_dark" android:textSize="14sp" android:textStyle="bold"/>
+        <TextView android:id="@+id/tvKategori" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textColor="@color/text_secondary" android:textSize="13sp"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
