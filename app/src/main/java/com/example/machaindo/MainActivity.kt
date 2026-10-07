@@ -1,15 +1,18 @@
 package com.example.machaindo
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.machaindo.data.local.TokenManager
+import com.example.machaindo.data.remote.RetrofitClient
 import com.example.machaindo.databinding.ActivityMainBinding
 import com.example.machaindo.ui.menu.MenuAdapter
 import com.example.machaindo.ui.menu.MenuUiState
@@ -33,19 +36,22 @@ class MainActivity : ComponentActivity() {
 
         // Jika belum ada token / belum login, kembali ke LoginActivity
         if (TokenManager.token.isNullOrEmpty()) {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
+            goToLogin()
             return
         }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        WindowCompat.getInsetsController(window, window.decorView)
+            .isAppearanceLightStatusBars = true
+
         bindHeader()
 
         binding.rvMenu.layoutManager = GridLayoutManager(this, 2)
         binding.rvMenu.adapter = adapter
         binding.btnRetry.setOnClickListener { viewModel.loadMenus() }
+        binding.btnLogout.setOnClickListener { confirmLogout() }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -64,6 +70,43 @@ class MainActivity : ComponentActivity() {
         binding.tvBaristaName.text = "$nama • $role"
         binding.tvBooth.text = if (cabang != -1) "Cabang #$cabang" else "-"
     }
+
+    // ---------- Logout ----------
+
+    private fun confirmLogout() {
+        AlertDialog.Builder(this)
+            .setTitle("Keluar")
+            .setMessage("Yakin ingin keluar dari akun?")
+            .setNegativeButton("Batal", null)
+            .setPositiveButton("Keluar") { _, _ -> doLogout() }
+            .show()
+    }
+
+    private fun doLogout() {
+        binding.btnLogout.isEnabled = false   // cegah ditekan dua kali
+
+        lifecycleScope.launch {
+            // Hapus token di server dulu (token masih dibutuhkan untuk request ini)
+            try {
+                RetrofitClient.api.logout()
+            } catch (_: Exception) {
+                // Server tidak terjangkau: tetap lanjut logout di HP
+            }
+
+            TokenManager.clear()
+            goToLogin()
+        }
+    }
+
+    // Pindah ke login dan hapus semua layar sebelumnya (tombol Back tidak bisa kembali)
+    private fun goToLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        finish()
+    }
+
+    // ---------- Render menu ----------
 
     private fun render(state: MenuUiState) {
         val hasError = state.error != null
