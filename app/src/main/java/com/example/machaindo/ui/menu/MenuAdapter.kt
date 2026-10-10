@@ -10,7 +10,7 @@ import com.example.machaindo.data.model.Menu
 import com.example.machaindo.databinding.ItemMenuBinding
 
 class MenuAdapter(
-    private val onClick: (Menu) -> Unit = {}   // dipakai nanti untuk tambah ke keranjang
+    private val onClick: (Menu) -> Unit = {}
 ) : ListAdapter<Menu, MenuAdapter.VH>(Diff) {
 
     class VH(val b: ItemMenuBinding) : RecyclerView.ViewHolder(b.root)
@@ -22,8 +22,8 @@ class MenuAdapter(
         val menu = getItem(position)
         with(holder.b) {
             tvNama.text = menu.namaMenu
-            tvKategori.text = menu.kategori
             tvInitial.text = menu.namaMenu.firstOrNull()?.uppercase() ?: "?"
+            tvHarga.text = String.format("IDR %,.0f", menu.harga).replace(',', '.')
             tvNonaktif.isVisible = !menu.isAktif
             root.alpha = if (menu.isAktif) 1f else 0.55f
             root.isEnabled = menu.isAktif

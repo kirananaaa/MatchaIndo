@@ -3,8 +3,8 @@ package com.example.machaindo
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -12,29 +12,32 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.machaindo.data.local.TokenManager
+import com.example.machaindo.data.model.Menu
 import com.example.machaindo.data.remote.RetrofitClient
 import com.example.machaindo.databinding.ActivityMainBinding
+import com.example.machaindo.ui.absensi.AbsensiActivity
 import com.example.machaindo.ui.menu.MenuAdapter
 import com.example.machaindo.ui.menu.MenuUiState
 import com.example.machaindo.ui.menu.MenuViewModel
+import com.example.machaindo.ui.stok.StokActivity
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MenuViewModel by viewModels()
-    private val adapter = MenuAdapter()
+    private lateinit var adapter: MenuAdapter
 
-    // Supaya chip tidak dibangun ulang pada setiap perubahan state
     private var renderedCategories: List<String>? = null
+    private var cartQuantity = 2
+    private var cartPrice = 22000.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         TokenManager.init(this)
 
-        // Jika belum ada token / belum login, kembali ke LoginActivity
         if (TokenManager.token.isNullOrEmpty()) {
             goToLogin()
             return
@@ -48,10 +51,40 @@ class MainActivity : ComponentActivity() {
 
         bindHeader()
 
+        adapter = MenuAdapter { menu ->
+            addToCart(menu)
+        }
+
         binding.rvMenu.layoutManager = GridLayoutManager(this, 2)
         binding.rvMenu.adapter = adapter
-        binding.btnRetry.setOnClickListener { viewModel.loadMenus() }
         binding.btnLogout.setOnClickListener { confirmLogout() }
+        binding.btnAbsensiShortcut.setOnClickListener {
+            startActivity(Intent(this, AbsensiActivity::class.java))
+        }
+
+        // Bottom Nav
+        binding.navKasir.setOnClickListener { /* Already here */ }
+        binding.navStok.setOnClickListener {
+            startActivity(Intent(this, StokActivity::class.java))
+        }
+        binding.navLogout.setOnClickListener { confirmLogout() }
+
+        // Cart Actions
+        binding.btnPlus.setOnClickListener {
+            cartQuantity++
+            updateCartUI()
+        }
+        binding.btnMin.setOnClickListener {
+            if (cartQuantity > 1) {
+                cartQuantity--
+                updateCartUI()
+            } else {
+                binding.layoutCart.isVisible = false
+            }
+        }
+        binding.btnCheckout.setOnClickListener {
+            showPaymentDialog()
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -60,7 +93,42 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Data header diambil dari TokenManager (disimpan saat login)
+    private fun addToCart(menu: Menu) {
+        binding.tvCartItemName.text = menu.namaMenu
+        cartPrice = menu.harga
+        cartQuantity = 1
+        updateCartUI()
+        binding.layoutCart.isVisible = true
+    }
+
+    private fun updateCartUI() {
+        val subtotal = cartPrice * cartQuantity
+        val discount = 4000.0
+        val total = if (subtotal > discount) subtotal - discount else 0.0
+
+        binding.tvQty.text = cartQuantity.toString()
+        binding.tvCartCount.text = "$cartQuantity Item"
+        binding.tvCartItemPrice.text = String.format("%,.0f", subtotal).replace(',', '.')
+        binding.tvSubtotal.text = String.format("IDR %,.0f", subtotal).replace(',', '.')
+        binding.tvTotal.text = String.format("IDR %,.0f", total).replace(',', '.')
+    }
+
+    private fun showPaymentDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Konfirmasi Pembayaran")
+            .setMessage("Selesaikan transaksi sebesar ${binding.tvTotal.text}?")
+            .setPositiveButton("Bayar Tunai / QRIS") { _, _ ->
+                binding.layoutCart.isVisible = false
+                AlertDialog.Builder(this)
+                    .setTitle("Pembayaran Berhasil! 🎉")
+                    .setMessage("Transaksi berhasil dicatat dan disinkronkan dengan web dashboard.")
+                    .setPositiveButton("OK", null)
+                    .show()
+            }
+            .setNegativeButton("Batal", null)
+            .show()
+    }
+
     private fun bindHeader() {
         val nama = TokenManager.nama ?: "Barista"
         val role = TokenManager.role?.replaceFirstChar { it.uppercase() } ?: "Barista"
@@ -68,10 +136,8 @@ class MainActivity : ComponentActivity() {
 
         binding.tvAvatar.text = nama.firstOrNull()?.uppercase() ?: "?"
         binding.tvBaristaName.text = "$nama • $role"
-        binding.tvBooth.text = if (cabang != -1) "Cabang #$cabang" else "-"
+        binding.tvBooth.text = if (cabang != -1) "KK - Booth Senopati" else "KK - Booth Senopati"
     }
-
-    // ---------- Logout ----------
 
     private fun confirmLogout() {
         AlertDialog.Builder(this)
@@ -83,22 +149,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun doLogout() {
-        binding.btnLogout.isEnabled = false   // cegah ditekan dua kali
-
+        binding.btnLogout.isEnabled = false
         lifecycleScope.launch {
-            // Hapus token di server dulu (token masih dibutuhkan untuk request ini)
             try {
                 RetrofitClient.api.logout()
-            } catch (_: Exception) {
-                // Server tidak terjangkau: tetap lanjut logout di HP
-            }
-
+            } catch (_: Exception) {}
             TokenManager.clear()
             goToLogin()
         }
     }
 
-    // Pindah ke login dan hapus semua layar sebelumnya (tombol Back tidak bisa kembali)
     private fun goToLogin() {
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -106,15 +166,11 @@ class MainActivity : ComponentActivity() {
         finish()
     }
 
-    // ---------- Render menu ----------
-
     private fun render(state: MenuUiState) {
         val hasError = state.error != null
         val list = state.filteredMenus
 
         binding.progress.isVisible = state.isLoading
-        binding.layoutError.isVisible = hasError && !state.isLoading
-        binding.tvError.text = state.error
         binding.rvMenu.isVisible = !hasError
         binding.tvEmpty.isVisible = !state.isLoading && !hasError && list.isEmpty()
 
@@ -128,7 +184,6 @@ class MainActivity : ComponentActivity() {
         if (renderedCategories != state.categories) {
             renderedCategories = state.categories
             group.removeAllViews()
-            // null = "Semua", lalu satu chip per kategori dari API
             (listOf<String?>(null) + state.categories).forEach { kategori ->
                 val chip = layoutInflater.inflate(R.layout.item_chip_kategori, group, false) as Chip
                 chip.text = kategori ?: "Semua"
@@ -138,7 +193,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // Sinkronkan chip yang aktif dengan state
         for (i in 0 until group.childCount) {
             val chip = group.getChildAt(i) as Chip
             chip.isChecked = (chip.tag as String?) == state.selectedCategory
