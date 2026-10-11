@@ -1,5 +1,6 @@
 package com.example.machaindo.ui.menu
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.machaindo.data.model.Menu
@@ -16,7 +17,9 @@ data class MenuUiState(
     val error: String? = null,
     val selectedCategory: String? = null   // null = semua
 ) {
-    val categories: List<String> get() = menus.map { it.kategori }.filter { it.isNotEmpty() }.distinct().sorted()
+    val categories: List<String>
+        get() = menus.map { it.kategori }.filter { it.isNotEmpty() }.distinct().sorted()
+
     val filteredMenus: List<Menu>
         get() = if (selectedCategory == null) menus else menus.filter { it.kategori == selectedCategory }
 }
@@ -32,56 +35,13 @@ class MenuViewModel : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             try {
-                // 100% dinamis mengambil data langsung dari Web API Laravel (/api/menus)
-                val element = RetrofitClient.api.getMenusJson()
-                val menuList = mutableListOf<Menu>()
-
-                val jsonArray = when {
-                    element.isJsonArray -> element.asJsonArray
-                    element.isJsonObject -> {
-                        val obj = element.asJsonObject
-                        when {
-                            obj.has("data") && obj.get("data").isJsonArray -> obj.getAsJsonArray("data")
-                            obj.has("menus") && obj.get("menus").isJsonArray -> obj.getAsJsonArray("menus")
-                            else -> null
-                        }
-                    }
-                    else -> null
-                }
-
-                jsonArray?.forEach { jsonElement ->
-                    try {
-                        val item = jsonElement.asJsonObject
-                        val id = item.get("id")?.asInt ?: item.get("id_menu")?.asInt ?: 1
-                        val nama = item.get("nama_menu")?.asString ?: item.get("name")?.asString ?: "Menu"
-                        val kat = item.get("kategori")?.asString ?: item.get("category")?.asString ?: "Umum"
-                        
-                        val isAktifVal = item.get("is_aktif")?.asBoolean 
-                            ?: item.get("is_active")?.asBoolean 
-                            ?: (item.get("status")?.asString?.lowercase() in listOf("aktif", "active", "1", "true"))
-
-                        val hargaVal = item.get("harga")?.asDouble 
-                            ?: item.get("price")?.asDouble 
-                            ?: 20000.0
-
-                        val rawGambar = item.get("gambar")?.asString 
-                            ?: item.get("image")?.asString 
-                            ?: item.get("photo")?.asString
-
-                        val gambarVal = when {
-                            rawGambar.isNullOrEmpty() -> null
-                            rawGambar.startsWith("http") -> rawGambar
-                            else -> "http://192.168.1.9:8000/" + rawGambar.removePrefix("/")
-                        }
-
-                        menuList.add(Menu(id, nama, kat, isAktifVal, hargaVal, gambarVal))
-                    } catch (_: Exception) {}
-                }
-
-                _state.update { it.copy(isLoading = false, menus = menuList) }
+                // Gson membaca langsung ke model Menu (sesuai MenuResource Laravel)
+                val menus = RetrofitClient.api.getMenus().data
+                _state.update { it.copy(isLoading = false, menus = menus) }
             } catch (e: Exception) {
+                Log.e("MenuVM", "Gagal memuat menu", e)
                 _state.update {
-                    it.copy(isLoading = false, error = "Gagal memuat menu dari web: ${e.localizedMessage}")
+                    it.copy(isLoading = false, error = "Gagal memuat menu: ${e.localizedMessage}")
                 }
             }
         }
