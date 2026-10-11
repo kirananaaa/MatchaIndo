@@ -27,5 +27,9 @@ object TokenManager {
         get() = prefs.getInt("id_cabang", -1)
         set(v) = prefs.edit().putInt("id_cabang", v).apply()
 
+    var namaCabang: String?
+        get() = prefs.getString("nama_cabang", null)
+        set(v)= prefs.edit().putString("nama_cabang", v).apply()
+
     fun clear() = prefs.edit().clear().apply()
 }

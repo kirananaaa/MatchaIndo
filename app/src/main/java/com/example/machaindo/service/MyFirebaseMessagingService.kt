@@ -15,12 +15,11 @@ import com.google.firebase.messaging.RemoteMessage
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        remoteMessage.notification?.let {
-            val title = it.title ?: "Pemberitahuan Baru"
-            val body = it.body ?: ""
-            // Kustomisasi untuk Notifikasi Shift atau Update Harga
-            sendNotification(title, body)
-        }
+        val title = remoteMessage.notification?.title
+            ?: remoteMessage.data["title"] ?: "Pemberitahuan Baru"
+        val body = remoteMessage.notification?.body
+            ?: remoteMessage.data["body"] ?: ""
+        sendNotification(title, body)
     }
 
     override fun onNewToken(token: String) {
@@ -32,9 +31,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val channelId = "matcha_notif_channel"
+        val channel = NotificationChannel(channelId, "Notifikasi Sistem", NotificationManager.IMPORTANCE_HIGH)
         val notificationBuilder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle(title)
@@ -48,6 +51,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             val channel = NotificationChannel(channelId, "Notifikasi Sistem", NotificationManager.IMPORTANCE_DEFAULT)
             notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.notify(0, notificationBuilder.build())
+        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
     }
 }

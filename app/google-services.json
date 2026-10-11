@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "561124981579",
+    "project_id": "matcha-indonesia",
+    "storage_bucket": "matcha-indonesia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561124981579:android:5e7b827a432c93d5f606ce",
+        "android_client_info": {
+          "package_name": "com.example.machaindo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFh-kGrH1jsmVl1VpAgxMJmB8cs8U-odA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561124981579:android:6232633937cf30eff606ce",
+        "android_client_info": {
+          "package_name": "com.example.matchaindo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFh-kGrH1jsmVl1VpAgxMJmB8cs8U-odA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

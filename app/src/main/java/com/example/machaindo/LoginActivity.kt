@@ -82,6 +82,7 @@ class LoginActivity : ComponentActivity() {
                 TokenManager.nama = res.user.nama
                 TokenManager.role = res.user.role
                 TokenManager.idCabang = res.user.idCabang ?: -1
+                TokenManager.namaCabang = res.user.namaCabang
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()

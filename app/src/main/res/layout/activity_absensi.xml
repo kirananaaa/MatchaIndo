@@ -1,59 +1,35 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/matcha_cream"
+    android:background="@color/cream_bg"
     android:fitsSystemWindows="true"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="24dp">
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="📍"
-        android:textSize="48sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Presensi Kehadiran"
-        android:textColor="@color/matcha_text"
+        android:text="Absensi"
+        android:textColor="@color/green_dark"
         android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:text="Pastikan Anda berada di dalam radius 50 meter dari Cabang Senopati untuk melakukan presensi."
-        android:textColor="@color/matcha_muted"
-        android:textSize="14sp" />
-
+        android:textStyle="bold"/>
     <TextView
         android:id="@+id/tvStatusLokasi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@color/matcha_field"
+        android:layout_marginTop="24dp"
         android:gravity="center"
-        android:padding="16dp"
-        android:text="Tekan tombol di bawah untuk cek lokasi dan presensi"
-        android:textColor="@color/matcha_text"
-        android:textSize="14sp" />
-
+        android:lineSpacingExtra="4dp"
+        android:text="Memuat status absensi..."
+        android:textColor="@color/green_dark"
+        android:textSize="15sp"/>
     <Button
         android:id="@+id/btnPresensi"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="@color/matcha_green"
-        android:text="Kirim Presensi"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="15sp"
-        android:textStyle="bold" />
-
+        android:layout_height="52dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/green_dark"
+        android:text="Absen Masuk"
+        android:textColor="@android:color/white"/>
 </LinearLayout>

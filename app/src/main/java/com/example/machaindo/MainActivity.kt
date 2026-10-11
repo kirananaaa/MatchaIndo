@@ -1,10 +1,18 @@
 package com.example.machaindo
 
+import android.Manifest
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -21,6 +29,7 @@ import com.example.machaindo.ui.menu.MenuUiState
 import com.example.machaindo.ui.menu.MenuViewModel
 import com.example.machaindo.ui.stok.StokActivity
 import com.google.android.material.chip.Chip
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -32,6 +41,11 @@ class MainActivity : AppCompatActivity() {
     private var renderedCategories: List<String>? = null
     private var cartQuantity = 2
     private var cartPrice = 22000.0
+
+    private val notifPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            Log.d(TAG, "Izin notifikasi diberikan: $granted")
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +64,7 @@ class MainActivity : AppCompatActivity() {
             .isAppearanceLightStatusBars = true
 
         bindHeader()
+        setupNotifications() // <-- sebelumnya tidak pernah dipanggil
 
         adapter = MenuAdapter { menu ->
             addToCart(menu)
@@ -93,6 +108,59 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // ---------------------------------------------------------------------
+    // Notifikasi (FCM)
+    // ---------------------------------------------------------------------
+
+    private fun setupNotifications() {
+        // 1. Channel notifikasi (Android 8+). ID harus sama dengan di
+        //    AndroidManifest, MyFirebaseMessagingService, dan FcmService (Laravel).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID, "Notifikasi Sistem",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            getSystemService(NotificationManager::class.java)
+                .createNotificationChannel(channel)
+        }
+
+        // 2. Izin notifikasi (Android 13+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            notifPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        // 3. Subscribe ke topic
+        TOPICS.forEach { topic ->
+            FirebaseMessaging.getInstance().subscribeToTopic(topic)
+                .addOnCompleteListener { task ->
+                    Log.d(TAG, "subscribe $topic: ${task.isSuccessful} ${task.exception ?: ""}")
+                }
+        }
+
+        // 4. Log token (untuk tes lewat "Test on device" di Firebase Console).
+        //    Hapus bagian ini kalau sudah tidak diperlukan.
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "TOKEN: ${task.result}")
+            } else {
+                Log.e(TAG, "Gagal ambil token", task.exception)
+            }
+        }
+    }
+
+    private fun unsubscribeNotifications() {
+        TOPICS.forEach { topic ->
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // Keranjang
+    // ---------------------------------------------------------------------
+
     private fun addToCart(menu: Menu) {
         binding.tvCartItemName.text = menu.namaMenu
         cartPrice = menu.harga
@@ -129,14 +197,17 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    // ---------------------------------------------------------------------
+    // Header & logout
+    // ---------------------------------------------------------------------
+
     private fun bindHeader() {
         val nama = TokenManager.nama ?: "Barista"
         val role = TokenManager.role?.replaceFirstChar { it.uppercase() } ?: "Barista"
-        val cabang = TokenManager.idCabang
 
         binding.tvAvatar.text = nama.firstOrNull()?.uppercase() ?: "?"
         binding.tvBaristaName.text = "$nama • $role"
-        binding.tvBooth.text = if (cabang != -1) "KK - Booth Senopati" else "KK - Booth Senopati"
+        binding.tvBooth.text = TokenManager.namaCabang ?: "-"
     }
 
     private fun confirmLogout() {
@@ -154,6 +225,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 RetrofitClient.api.logout()
             } catch (_: Exception) {}
+            unsubscribeNotifications() // user yang sudah logout tidak menerima notifikasi
             TokenManager.clear()
             goToLogin()
         }
@@ -165,6 +237,10 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
+
+    // ---------------------------------------------------------------------
+    // Render daftar menu
+    // ---------------------------------------------------------------------
 
     private fun render(state: MenuUiState) {
         val hasError = state.error != null
@@ -197,5 +273,11 @@ class MainActivity : AppCompatActivity() {
             val chip = group.getChildAt(i) as Chip
             chip.isChecked = (chip.tag as String?) == state.selectedCategory
         }
+    }
+
+    companion object {
+        private const val TAG = "FCM"
+        private const val CHANNEL_ID = "matcha_notif_channel"
+        private val TOPICS = listOf("menu_update", "stok_update")
     }
 }

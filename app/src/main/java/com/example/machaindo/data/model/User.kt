@@ -10,6 +10,7 @@ data class LoginRequest(
 data class UserDto(
     @SerializedName("id_user") val idUser: Int,
     @SerializedName("id_cabang") val idCabang: Int? = null,
+    @SerializedName("nama_cabang") val namaCabang: String?,
     val nama: String,
     val username: String,
     val role: String

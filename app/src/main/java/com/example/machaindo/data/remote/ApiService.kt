@@ -1,5 +1,7 @@
 package com.example.machaindo.data.remote
 
+import com.example.machaindo.data.model.AbsensiRequest
+import com.example.machaindo.data.model.AbsensiResponse
 import com.example.machaindo.data.model.MenuResponse
 import com.example.machaindo.data.model.LoginRequest
 import com.example.machaindo.data.model.LoginResponse
@@ -15,7 +17,7 @@ interface ApiService {
     @GET("menus")
     suspend fun getMenus(
         @Query("search") search: String? = null,
-        @Query("category") category: String? = null
+        @Query("kategori") kategori: String? = null   // sebelumnya "category"; API memakai "kategori"
     ): MenuResponse
 
     @POST("login")
@@ -29,4 +31,14 @@ interface ApiService {
 
     @GET("stok")
     suspend fun getStok(): Response<StokResponse>
+
+    // --- Absensi ---
+    @GET("absensi/hari-ini")
+    suspend fun getAbsensiHariIni(): AbsensiResponse
+
+    @POST("absensi/masuk")
+    suspend fun absenMasuk(@Body body: AbsensiRequest): AbsensiResponse
+
+    @POST("absensi/pulang")
+    suspend fun absenPulang(@Body body: AbsensiRequest): AbsensiResponse
 }
