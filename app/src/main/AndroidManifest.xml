@@ -42,6 +42,7 @@
         <activity android:name=".ui.absensi.AbsensiActivity" />
         <activity android:name=".ui.rekap.RekapActivity" />
         <activity android:name=".ui.stok.StokActivity" />
+        <activity android:name=".ui.riwayat.RiwayatActivity" />
 
         <!-- Tambahan Service Firebase -->
         <service

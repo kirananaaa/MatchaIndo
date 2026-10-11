@@ -7,6 +7,9 @@ import com.example.machaindo.data.model.LoginRequest
 import com.example.machaindo.data.model.LoginResponse
 import com.example.machaindo.data.model.StokResponse
 import com.example.machaindo.data.model.UserDto
+import com.example.machaindo.data.model.TransaksiRequest
+import com.example.machaindo.data.model.TransaksiResponse
+import com.google.gson.JsonElement
 import retrofit2.http.GET
 import retrofit2.Response
 import retrofit2.http.Query
@@ -17,8 +20,14 @@ interface ApiService {
     @GET("menus")
     suspend fun getMenus(
         @Query("search") search: String? = null,
-        @Query("kategori") kategori: String? = null   // sebelumnya "category"; API memakai "kategori"
+        @Query("kategori") kategori: String? = null
     ): MenuResponse
+
+    @GET("menus")
+    suspend fun getMenusJson(
+        @Query("search") search: String? = null,
+        @Query("kategori") kategori: String? = null
+    ): JsonElement
 
     @POST("login")
     suspend fun login(@Body body: LoginRequest): LoginResponse
@@ -31,6 +40,10 @@ interface ApiService {
 
     @GET("stok")
     suspend fun getStok(): Response<StokResponse>
+
+    // --- Transaksi Checkout ---
+    @POST("transaksi/checkout")
+    suspend fun submitCheckout(@Body request: TransaksiRequest): Response<TransaksiResponse>
 
     // --- Absensi ---
     @GET("absensi/hari-ini")

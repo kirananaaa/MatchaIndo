@@ -41,7 +41,7 @@ class RekapActivity : AppCompatActivity() {
     // Menggunakan Pustaka Volley sesuai syarat UTS
     private fun fetchLaporan(tanggal: String) {
         val queue = Volley.newRequestQueue(this)
-        val url = "http://172.18.147.84:8000/api/rekap?tanggal=$tanggal"
+        val url = "http://192.168.1.9:8000/api/rekap?tanggal=$tanggal"
 
         val jsonObjectRequest = object : JsonObjectRequest(Request.Method.GET, url, null,
             { response ->

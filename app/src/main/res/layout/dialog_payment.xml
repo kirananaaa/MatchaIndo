@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/matcha_cream"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Metode Pembayaran"
+        android:textColor="@color/matcha_text"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@color/matcha_field"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TOTAL YANG HARUS DIBAYAR"
+            android:textColor="@color/matcha_muted"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDialogTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="IDR 40.000"
+            android:textColor="@color/green_dark"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Pilihan Metode (Tunai vs QRIS) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/matcha_field"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <Button
+            android:id="@+id/btnTabTunai"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@color/matcha_green"
+            android:text="💵 Tunai (Cash)"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/btnTabQris"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="@android:color/transparent"
+            android:text="📱 QRIS Scan"
+            android:textAllCaps="false"
+            android:textColor="@color/matcha_text"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- Container Tunai -->
+    <LinearLayout
+        android:id="@+id/layoutTunai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="UANG TUNAI DITERIMA"
+            android:textColor="@color/matcha_label"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etUangDiterima"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="6dp"
+            android:background="@color/matcha_field"
+            android:hint="Masukkan jumlah uang"
+            android:inputType="numberDecimal"
+            android:paddingHorizontal="16dp"
+            android:textColor="@color/matcha_text"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <Button
+                android:id="@+id/btnPas"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/matcha_field"
+                android:text="Pas"
+                android:textColor="@color/matcha_text" />
+
+            <Button
+                android:id="@+id/btn50k"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="@color/matcha_field"
+                android:text="50k"
+                android:textColor="@color/matcha_text" />
+
+            <Button
+                android:id="@+id/btn100k"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:backgroundTint="@color/matcha_field"
+                android:text="100k"
+                android:textColor="@color/matcha_text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_online_badge"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Uang Kembali (Change)"
+                android:textColor="@color/online_text"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvKembalian"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IDR 0"
+                android:textColor="@color/online_text"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Container QRIS -->
+    <LinearLayout
+        android:id="@+id/layoutQris"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📷 Scan QRIS untuk Pembayaran"
+            android:textColor="@color/matcha_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/matcha_field"
+            android:contentDescription="QRIS Barcode"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_camera" />
+
+        <TextView
+            android:id="@+id/tvQrisNominal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Nominal QRIS: IDR 40.000"
+            android:textColor="@color/matcha_text"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Merchant: KopiKasir Senopati\nNMID: ID1029384756"
+            android:textAlignment="center"
+            android:textColor="@color/matcha_muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSelesaikanTransaksi"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="@color/green_dark"
+        android:text="Selesaikan Transaksi ✓"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

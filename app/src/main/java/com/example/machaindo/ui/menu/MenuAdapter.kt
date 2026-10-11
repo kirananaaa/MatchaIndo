@@ -6,6 +6,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.example.machaindo.data.model.Menu
 import com.example.machaindo.databinding.ItemMenuBinding
 
@@ -22,9 +23,19 @@ class MenuAdapter(
         val menu = getItem(position)
         with(holder.b) {
             tvNama.text = menu.namaMenu
-            tvInitial.text = menu.namaMenu.firstOrNull()?.uppercase() ?: "?"
             tvHarga.text = String.format("IDR %,.0f", menu.harga).replace(',', '.')
             tvNonaktif.isVisible = !menu.isAktif
+
+            if (!menu.gambar.isNullOrEmpty()) {
+                ivMenu.isVisible = true
+                ivMenu.load(menu.gambar) {
+                    crossfade(true)
+                }
+            } else {
+                ivMenu.isVisible = false
+                tvInitial.text = menu.namaMenu.firstOrNull()?.uppercase() ?: "?"
+            }
+
             root.alpha = if (menu.isAktif) 1f else 0.55f
             root.isEnabled = menu.isAktif
             root.setOnClickListener { if (menu.isAktif) onClick(menu) }
