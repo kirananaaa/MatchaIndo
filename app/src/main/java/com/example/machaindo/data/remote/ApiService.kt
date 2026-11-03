@@ -4,7 +4,7 @@ import com.example.machaindo.data.model.AbsensiRequest
 import com.example.machaindo.data.model.AbsensiResponse
 import com.example.machaindo.data.model.MenuResponse
 import com.example.machaindo.data.model.LoginRequest
-import com.example.machaindo.data.model.LoginResponse
+import com.example.machaindo.data.model.LoginWrapper
 import com.example.machaindo.data.model.StokResponse
 import com.example.machaindo.data.model.UserDto
 import com.example.machaindo.data.model.TransaksiRequest
@@ -30,7 +30,7 @@ interface ApiService {
     ): JsonElement
 
     @POST("login")
-    suspend fun login(@Body body: LoginRequest): LoginResponse
+    suspend fun login(@Body body: LoginRequest): LoginWrapper
 
     @POST("logout")
     suspend fun logout()

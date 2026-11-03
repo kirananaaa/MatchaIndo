@@ -77,12 +77,13 @@ class LoginActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             try {
-                val res = RetrofitClient.api.login(LoginRequest(username, password))
+                val wrapper = RetrofitClient.api.login(LoginRequest(username, password))
+                val res = wrapper.data
                 TokenManager.token = res.token
-                TokenManager.nama = res.user.nama
-                TokenManager.role = res.user.role
-                TokenManager.idCabang = res.user.idCabang ?: -1
-                TokenManager.namaCabang = res.user.namaCabang
+                TokenManager.nama = res.user?.nama ?: res.user?.username ?: "Barista"
+                TokenManager.role = res.user?.role ?: "barista"
+                TokenManager.idCabang = res.user?.idCabang ?: -1
+                TokenManager.namaCabang = res.user?.namaCabang
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()

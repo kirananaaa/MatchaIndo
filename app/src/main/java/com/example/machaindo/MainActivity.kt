@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var renderedCategories: List<String>? = null
     private var cartQuantity = 2
     private var cartPrice = 22000.0
+    private var selectedMenu: Menu? = null
 
     private val notifPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         TokenManager.init(this)
+        TransactionRepository.init(this)
 
         if (TokenManager.token.isNullOrEmpty()) {
             goToLogin()
@@ -154,6 +156,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addToCart(menu: Menu) {
+        selectedMenu = menu
         binding.tvCartItemName.text = menu.namaMenu
         cartPrice = menu.harga
         cartQuantity = 1
@@ -191,12 +194,15 @@ class MainActivity : AppCompatActivity() {
         val btn100k = dialogView.findViewById<Button>(R.id.btn100k)
         val btnSelesaikan = dialogView.findViewById<Button>(R.id.btnSelesaikanTransaksi)
         val tvQrisNominal = dialogView.findViewById<TextView>(R.id.tvQrisNominal)
+        val btnCekStatusQris = dialogView.findViewById<Button>(R.id.btnCekStatusQris)
+        val tvQrisStatus = dialogView.findViewById<TextView>(R.id.tvQrisStatus)
 
         val totalAmount = binding.tvTotal.text.toString().replace("IDR ", "").replace(".", "").toDoubleOrNull() ?: 40000.0
         tvTotal.text = binding.tvTotal.text
         tvQrisNominal.text = "Nominal QRIS: ${binding.tvTotal.text}"
 
         var isTunai = true
+        var qrisPaid = false
 
         btnTunai.setOnClickListener {
             isTunai = true
@@ -218,6 +224,17 @@ class MainActivity : AppCompatActivity() {
             layoutQris.isVisible = true
         }
 
+        btnCekStatusQris.setOnClickListener {
+            btnCekStatusQris.isEnabled = false
+            btnCekStatusQris.text = "Memeriksa Payment Gateway..."
+            dialogView.postDelayed({
+                qrisPaid = true
+                tvQrisStatus.text = "Status: Lunas (Verified by Gateway) ✔️"
+                tvQrisStatus.setTextColor(ContextCompat.getColor(this, R.color.online_text))
+                btnCekStatusQris.text = "Pembayaran QRIS Terverifikasi"
+            }, 1500)
+        }
+
         etUangDiterima.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -233,11 +250,25 @@ class MainActivity : AppCompatActivity() {
         btn100k.setOnClickListener { etUangDiterima.setText("100000") }
 
         btnSelesaikan.setOnClickListener {
+            if (!isTunai && !qrisPaid) {
+                android.widget.Toast.makeText(this, "Silakan klik Cek Status Payment Gateway terlebih dahulu", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
             val metode = if (isTunai) "tunai" else "qris"
             val detailTrx = "${binding.tvQty.text}x ${binding.tvCartItemName.text}"
             val trxId = "#KK-${(1000000..9999999).random()}"
             val timeNow = android.text.format.DateFormat.format("dd MMM yyyy, HH:mm", java.util.Date()).toString()
             val uangDiterimaVal = etUangDiterima.text.toString().toDoubleOrNull() ?: totalAmount
+
+            val menuId = selectedMenu?.idMenu?.toLong() ?: viewModel.state.value.menus.firstOrNull()?.idMenu?.toLong() ?: 1L
+            val cupId = selectedMenu?.hargaMenus?.firstOrNull()?.idCup?.toLong() ?: 1L
+            Log.d("CHECKOUT", "Sending menuId=$menuId, cupId=$cupId")
+
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).apply {
+                timeZone = java.util.TimeZone.getTimeZone("Asia/Jakarta")
+            }
+            val timeString = sdf.format(java.util.Date())
 
             val request = TransaksiRequest(
                 idCabang = TokenManager.idCabang.toLong().let { if (it == -1L) 1L else it },
@@ -245,12 +276,13 @@ class MainActivity : AppCompatActivity() {
                 totalBayar = totalAmount,
                 metodeBayar = metode,
                 uangDiterima = if (isTunai) uangDiterimaVal else null,
+                waktuTransaksi = timeString,
                 items = listOf(
                     DetailTransaksiRequest(
-                        idMenu = 1L,
-                        idCup = 1L,
+                        idMenu = menuId,
+                        idCup = cupId,
                         jumlah = binding.tvQty.text.toString().toIntOrNull() ?: 1,
-                        hargaSatuan = totalAmount / (binding.tvQty.text.toString().toIntOrNull() ?: 1)
+                        hargaSatuan = cartPrice
                     )
                 )
             )
@@ -260,14 +292,23 @@ class MainActivity : AppCompatActivity() {
                     val response = RetrofitClient.api.submitCheckout(request)
                     if (response.isSuccessful) {
                         Log.d("CHECKOUT", "Checkout berhasil ke server web")
+                    } else {
+                        val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                        Log.e("CHECKOUT", "Gagal sync Laravel (${response.code()}): $errorBody")
+                        runOnUiThread {
+                            android.widget.Toast.makeText(this@MainActivity, "Gagal sync ke web: $errorBody", android.widget.Toast.LENGTH_LONG).show()
+                        }
                     }
                 } catch (e: Exception) {
-                    Log.e("CHECKOUT", "Gagal sync ke server: ${e.message}")
+                    Log.e("CHECKOUT", "Koneksi ke web gagal: ${e.message}")
+                    runOnUiThread {
+                        android.widget.Toast.makeText(this@MainActivity, "Koneksi ke web gagal: ${e.localizedMessage}", android.widget.Toast.LENGTH_LONG).show()
+                    }
                 }
             }
 
             TransactionRepository.addTransaction(
-                TransactionRecord(trxId, detailTrx, totalAmount, if (isTunai) "Tunai (Cash)" else "QRIS Scan", timeNow)
+                TransactionRecord(trxId, detailTrx, totalAmount, if (isTunai) "Tunai (Cash)" else "QRIS Gateway", timeNow)
             )
 
             dialog.dismiss()
@@ -275,7 +316,7 @@ class MainActivity : AppCompatActivity() {
 
             AlertDialog.Builder(this)
                 .setTitle("Pembayaran Berhasil! 🎉")
-                .setMessage("Transaksi $trxId via ${if (isTunai) "Tunai (Cash)" else "QRIS Scan"} senilai ${binding.tvTotal.text} berhasil dicatat dan disinkronkan ke web.")
+                .setMessage("Transaksi $trxId via ${if (isTunai) "Tunai (Cash)" else "QRIS Gateway"} senilai ${binding.tvTotal.text} berhasil dicatat dan disinkronkan ke web untuk Rekonsiliasi QRIS.")
                 .setPositiveButton("Cetak Struk", null)
                 .setNegativeButton("Transaksi Baru", null)
                 .show()

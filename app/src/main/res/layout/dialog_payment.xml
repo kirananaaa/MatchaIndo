@@ -68,7 +68,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:backgroundTint="@android:color/transparent"
-            android:text="📱 QRIS Scan"
+            android:text="📱 QRIS Gateway"
             android:textAllCaps="false"
             android:textColor="@color/matcha_text"
             android:textSize="13sp" />
@@ -169,7 +169,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Container QRIS -->
+    <!-- Container QRIS (Payment Gateway Simulation) -->
     <LinearLayout
         android:id="@+id/layoutQris"
         android:layout_width="match_parent"
@@ -182,37 +182,51 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📷 Scan QRIS untuk Pembayaran"
+            android:text="📱 QRIS Payment Gateway"
             android:textColor="@color/matcha_text"
             android:textSize="14sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="10dp"
             android:background="@color/matcha_field"
             android:contentDescription="QRIS Barcode"
-            android:padding="12dp"
+            android:padding="8dp"
             android:src="@android:drawable/ic_menu_camera" />
 
         <TextView
             android:id="@+id/tvQrisNominal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:text="Nominal QRIS: IDR 40.000"
             android:textColor="@color/matcha_text"
             android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/tvQrisStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="Merchant: KopiKasir Senopati\nNMID: ID1029384756"
-            android:textAlignment="center"
-            android:textColor="@color/matcha_muted"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_online_badge"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="Status: Menunggu Pembayaran..."
+            android:textColor="#D97706"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/btnCekStatusQris"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="10dp"
+            android:text="🔄 Cek Status Payment Gateway"
+            android:textColor="@color/green_dark"
             android:textSize="12sp" />
     </LinearLayout>
 
