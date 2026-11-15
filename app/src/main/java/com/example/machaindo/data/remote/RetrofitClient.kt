@@ -19,7 +19,12 @@ object RetrofitClient {
                 .build()
             chain.proceed(request)
         }
-        .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                redactHeader("Authorization")
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        )
         .build()
 
     val api: ApiService by lazy {

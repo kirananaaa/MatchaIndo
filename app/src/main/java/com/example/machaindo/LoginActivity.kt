@@ -79,6 +79,7 @@ class LoginActivity : ComponentActivity() {
             try {
                 val res = RetrofitClient.api.login(LoginRequest(username, password))
                 TokenManager.token = res.token
+                TokenManager.idUser = res.user.idUser
                 TokenManager.nama = res.user.nama
                 TokenManager.role = res.user.role
                 TokenManager.idCabang = res.user.idCabang ?: -1

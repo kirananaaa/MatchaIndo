@@ -25,15 +25,20 @@ class MenuAdapter(
             tvNama.text = menu.namaMenu
             tvHarga.text = String.format("IDR %,.0f", menu.harga).replace(',', '.')
             tvNonaktif.isVisible = !menu.isAktif
+            tvInitial.text = menu.namaMenu.firstOrNull()?.uppercase() ?: "?"
+            tvInitial.isVisible = true
 
             if (!menu.gambar.isNullOrEmpty()) {
                 ivMenu.isVisible = true
                 ivMenu.load(menu.gambar) {
                     crossfade(true)
+                    listener(
+                        onSuccess = { _, _ -> tvInitial.isVisible = false },
+                        onError = { _, _ -> ivMenu.isVisible = false }
+                    )
                 }
             } else {
                 ivMenu.isVisible = false
-                tvInitial.text = menu.namaMenu.firstOrNull()?.uppercase() ?: "?"
             }
 
             root.alpha = if (menu.isAktif) 1f else 0.55f
