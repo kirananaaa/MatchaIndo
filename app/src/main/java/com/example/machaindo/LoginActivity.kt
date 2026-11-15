@@ -78,12 +78,16 @@ class LoginActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 val res = RetrofitClient.api.login(LoginRequest(username, password))
-                TokenManager.token = res.token
-                TokenManager.idUser = res.user.idUser
-                TokenManager.nama = res.user.nama
-                TokenManager.role = res.user.role
-                TokenManager.idCabang = res.user.idCabang ?: -1
-                TokenManager.namaCabang = res.user.namaCabang
+                val token = res.token?.takeIf { it.isNotBlank() }
+                    ?: throw IllegalStateException("Respons login tidak berisi token.")
+                val user = res.user
+                    ?: throw IllegalStateException("Respons login tidak berisi data pengguna.")
+                TokenManager.token = token
+                TokenManager.idUser = user.idUser
+                TokenManager.nama = user.nama ?: user.username ?: "Barista"
+                TokenManager.role = user.role ?: "barista"
+                TokenManager.idCabang = user.idCabang ?: -1
+                TokenManager.namaCabang = user.namaCabang
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()

@@ -8,7 +8,7 @@ data class TransaksiRequest(
     @SerializedName("total_bayar") val totalBayar: Double,
     @SerializedName("metode_bayar") val metodeBayar: String,
     @SerializedName("uang_diterima") val uangDiterima: Double?,
-    @SerializedName("waktu_transaksi") val waktuTransaksi: String?,
+    @SerializedName("waktu_transaksi") val waktuTransaksi: String? = null,
     val items: List<DetailTransaksiRequest>
 )
 

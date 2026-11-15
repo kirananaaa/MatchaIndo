@@ -69,31 +69,41 @@ class MenuViewModel : ViewModel() {
                             ?: (item.get("status")?.asString?.lowercase() in listOf("aktif", "active", "1", "true"))
 
                         val hargaElement = item.get("harga")
-                        var hargaVal = 20000.0
+                        val hargaMenusElement = item.get("harga_menus")
+                            ?.takeUnless { it.isJsonNull }
+                            ?.takeIf { it.isJsonArray }
+                            ?: hargaElement?.takeIf { it.isJsonArray }
                         val hargaMenusList = mutableListOf<HargaCup>()
 
-                        if (hargaElement != null) {
-                            if (hargaElement.isJsonPrimitive && hargaElement.asJsonPrimitive.isNumber) {
-                                hargaVal = hargaElement.asDouble
-                            } else if (hargaElement.isJsonArray) {
-                                val cupArray = hargaElement.asJsonArray
-                                var minHarga = Double.MAX_VALUE
-                                cupArray.forEach { cupElement ->
-                                    try {
-                                        val cupObj = cupElement.asJsonObject
-                                        val cupId = cupObj.get("id_cup")?.asInt ?: 1
-                                        val cupName = cupObj.get("nama_cup")?.asString ?: "Regular"
-                                        val vol = cupObj.get("volume_ml")?.asInt ?: 0
-                                        val h = cupObj.get("harga")?.asDouble ?: 15000.0
-                                        if (h < minHarga) minHarga = h
-                                        hargaMenusList.add(HargaCup(cupId, cupName, vol, h))
-                                    } catch (_: Exception) {}
+                        hargaMenusElement?.asJsonArray?.forEach { cupElement ->
+                            try {
+                                val cupObj = cupElement.asJsonObject
+                                val cupId = cupObj.get("id_cup")
+                                    ?.takeUnless { it.isJsonNull }
+                                    ?.asInt
+                                val price = cupObj.get("harga")
+                                    ?.takeUnless { it.isJsonNull }
+                                    ?.asDouble
+                                if (cupId != null && price != null) {
+                                    val cupName = cupObj.get("nama_cup")
+                                        ?.takeUnless { it.isJsonNull }
+                                        ?.asString
+                                        ?: "Regular"
+                                    val volume = cupObj.get("volume_ml")
+                                        ?.takeUnless { it.isJsonNull }
+                                        ?.asInt
+                                        ?: 0
+                                    hargaMenusList.add(HargaCup(cupId, cupName, volume, price))
                                 }
-                                if (minHarga != Double.MAX_VALUE) {
-                                    hargaVal = minHarga
-                                }
+                            } catch (exception: Exception) {
+                                Log.w("MenuVM", "Harga cup menu tidak valid", exception)
                             }
                         }
+                        val hargaVal = hargaMenusList.minOfOrNull { it.harga }
+                            ?: hargaElement
+                                ?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isNumber }
+                                ?.asDouble
+                            ?: 0.0
 
                         val rawGambar = listOf("gambar", "image", "photo")
                             .firstNotNullOfOrNull { key ->
