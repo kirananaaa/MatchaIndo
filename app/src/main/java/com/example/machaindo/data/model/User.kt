@@ -17,12 +17,6 @@ data class UserDto(
 )
 
 data class LoginResponse(
-    val token: String,
+    val token: String?,
     val user: UserDto?
-)
-
-data class LoginWrapper(
-    val status: Boolean,
-    val message: String,
-    val data: LoginResponse
 )

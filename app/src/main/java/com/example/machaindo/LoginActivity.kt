@@ -78,12 +78,15 @@ class LoginActivity : ComponentActivity() {
         lifecycleScope.launch {
             try {
                 val wrapper = RetrofitClient.api.login(LoginRequest(username, password))
-                val res = wrapper.data
-                TokenManager.token = res.token
-                TokenManager.nama = res.user?.nama ?: res.user?.username ?: "Barista"
-                TokenManager.role = res.user?.role ?: "barista"
-                TokenManager.idCabang = res.user?.idCabang ?: -1
-                TokenManager.namaCabang = res.user?.namaCabang
+                val token = wrapper.token?.takeIf { it.isNotBlank() }
+                    ?: throw IOException("Respons login server tidak valid")
+                val res = wrapper.user
+                TokenManager.token = token
+                TokenManager.idUser = res?.idUser ?: -1
+                TokenManager.nama = res?.nama ?: res?.username ?: "Barista"
+                TokenManager.role = res?.role ?: "barista"
+                TokenManager.idCabang = res?.idCabang ?: -1
+                TokenManager.namaCabang = res?.namaCabang
 
                 startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                 finish()

@@ -95,9 +95,10 @@ class MenuViewModel : ViewModel() {
                             }
                         }
 
-                        val rawGambar = item.get("gambar")?.asString 
-                            ?: item.get("image")?.asString 
-                            ?: item.get("photo")?.asString
+                        val rawGambar = listOf("gambar", "image", "photo")
+                            .firstNotNullOfOrNull { key ->
+                                item.get(key)?.takeUnless { it.isJsonNull }?.asString
+                            }
 
                         val gambarVal = when {
                             rawGambar.isNullOrEmpty() -> null
