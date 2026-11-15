@@ -47,10 +47,22 @@
         android:textSize="14sp" />
 
     <Button
+        android:id="@+id/btnRekonsiliasi"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="@color/matcha_label"
+        android:text="⚖️ Buka Rekonsiliasi QRIS"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <Button
         android:id="@+id/btnClosing"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:backgroundTint="@color/matcha_green"
         android:text="Lakukan Closing"
         android:textAllCaps="false"

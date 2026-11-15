@@ -1,6 +1,7 @@
 package com.example.machaindo.ui.rekap
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -11,21 +12,24 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
 import com.example.machaindo.R
 import com.example.machaindo.data.local.TokenManager
+import com.example.machaindo.ui.rekonsiliasi.RekonsiliasiActivity
 import java.util.Calendar
 
 class RekapActivity : AppCompatActivity() {
 
     private lateinit var btnPilihTanggal: Button
     private lateinit var btnClosing: Button
+    private lateinit var btnRekonsiliasi: Button
     private lateinit var tvLaporan: TextView
     private var selectedDate = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_rekap) // Buat layout XML terkait
+        setContentView(R.layout.activity_rekap)
 
         btnPilihTanggal = findViewById(R.id.btnPilihTanggal)
         btnClosing = findViewById(R.id.btnClosing)
+        btnRekonsiliasi = findViewById(R.id.btnRekonsiliasi)
         tvLaporan = findViewById(R.id.tvLaporan)
 
         btnPilihTanggal.setOnClickListener {
@@ -35,6 +39,10 @@ class RekapActivity : AppCompatActivity() {
                 btnPilihTanggal.text = "Tanggal: $selectedDate"
                 fetchLaporan(selectedDate)
             }, c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DAY_OF_MONTH)).show()
+        }
+
+        btnRekonsiliasi.setOnClickListener {
+            startActivity(Intent(this, RekonsiliasiActivity::class.java))
         }
     }
 

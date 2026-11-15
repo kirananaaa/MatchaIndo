@@ -43,6 +43,7 @@
         <activity android:name=".ui.rekap.RekapActivity" />
         <activity android:name=".ui.stok.StokActivity" />
         <activity android:name=".ui.riwayat.RiwayatActivity" />
+        <activity android:name=".ui.rekonsiliasi.RekonsiliasiActivity" />
 
         <!-- Tambahan Service Firebase -->
         <service
